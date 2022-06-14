@@ -30,7 +30,7 @@ bl_info = {
     "name": "Restore Symmetry (originally Remirror)",
     "author": "Philip Lafleur (original author), Henrik Berglund (edits), Sergey Meshkov (edits)",
     "version": (1, 0, 3),
-    "blender": (2, 7, 9),
+    "blender": (2, 80, 0),
     "location": "View3D > Object > Mirror > Restore Symmetry",
     "description": "Non-destructively update symmetry of a mirrored mesh (and shapekeys)",
     "warning": "",
@@ -51,24 +51,26 @@ ERR_FACE_COUNT   = "Encountered edge with more than 2 faces attached."
 CENTRAL_LOOP_MARGIN = 1e-5
 
 
-class RestoreSymmetry(bpy.types.Operator):
+class RestoreSymmetry_OT_RestoreSymmetry(bpy.types.Operator):
     bl_idname      = "mesh.restoresymmetry"
     bl_label       = "Restore Symmetry"
     bl_description = "Non-destructively update symmetry of a mirrored mesh (and shapekeys)"
     bl_options     = {'REGISTER', 'UNDO'}
 
-    axis = bpy.props.EnumProperty(
+    axis: bpy.props.EnumProperty(
                  name = "Axis",
                  description = "Mirror axis",
+                 default = 'X',
                  items = (('X', "X", "X Axis"),
                           ('Y', "Y", "Y Axis"),
                           ('Z', "Z", "Z Axis")))
-    source = bpy.props.EnumProperty(
+    source: bpy.props.EnumProperty(
                  name = "Source",
                  description = "Which half of the mesh to use as mirror source",
+                 default = 'POSITIVE',
                  items = (('POSITIVE', "Positive side", "Positive side"),
                           ('NEGATIVE', "Negative side", "Negative side")))
-    targetmix = bpy.props.FloatProperty(
+    targetmix: bpy.props.FloatProperty(
                  name = "Target Mix Amount",
                  description = "How much target coordinates should contribute",
                  default = 0.0, min = 0.0, max = 1.0)
@@ -342,21 +344,21 @@ def restore_symmetry(mesh, shapekey, axis, source, targetmix):
         e.tag = False
 
     bm.to_mesh(mesh)
-    mesh.update(calc_tessface = True)
+    mesh.update()
 
 
 def menufunc(self, context):
-    self.layout.operator(RestoreSymmetry.bl_idname)
+    self.layout.operator(RestoreSymmetry_OT_RestoreSymmetry.bl_idname)
 
 
 def register():
-    bpy.utils.register_class(RestoreSymmetry)
+    bpy.utils.register_class(RestoreSymmetry_OT_RestoreSymmetry)
     bpy.types.VIEW3D_MT_mirror.append(menufunc)
 
 
 def unregister():
     bpy.types.VIEW3D_MT_mirror.remove(menufunc)
-    bpy.utils.unregister_class(RestoreSymmetry)
+    bpy.utils.unregister_class(RestoreSymmetry_OT_RestoreSymmetry)
 
 
 if __name__ == "__main__":
